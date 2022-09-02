@@ -37,7 +37,9 @@ class _TrackerState extends State<Tracker> {
           LocationData locationData = await _location.getLocation();
 
           setState(() {
-            _journey.add(Coordinate(latitude: locationData.latitude!, longitude: locationData.longitude!));
+            _journey.add(Coordinate(
+                latitude: locationData.latitude!,
+                longitude: locationData.longitude!));
           });
 
           _locationStream =
@@ -58,7 +60,9 @@ class _TrackerState extends State<Tracker> {
                 ]);
 
             setState(() {
-              _journey.add(Coordinate(latitude: location.latitude!, longitude: location.longitude!));
+              _journey.add(Coordinate(
+                  latitude: location.latitude!,
+                  longitude: location.longitude!));
 
               _polyLines[polylineId] = polyline;
             });
@@ -99,8 +103,9 @@ class _TrackerState extends State<Tracker> {
       double deltaPhi = (lat2 - lat1) * pi / 180;
       double deltaLambda = (lon2 - lon1) * pi / 180;
 
-      double a = sin(deltaPhi/2) * sin(deltaPhi/2) + cos(phi1) * cos(phi2) * sin(deltaLambda/2) * sin(deltaLambda/2);
-      double c = 2 * atan2(sqrt(a), sqrt(1-a));
+      double a = sin(deltaPhi / 2) * sin(deltaPhi / 2) +
+          cos(phi1) * cos(phi2) * sin(deltaLambda / 2) * sin(deltaLambda / 2);
+      double c = 2 * atan2(sqrt(a), sqrt(1 - a));
       double d = R * c; // Metres
 
       totalDistance += d;
@@ -108,10 +113,15 @@ class _TrackerState extends State<Tracker> {
       previous = locationData;
     }
 
-    Journey journey =
-    Journey(coordinates: _journey, date: DateTime.now(), distance: totalDistance);
+    Journey journey = Journey(
+        coordinates: _journey, date: DateTime.now(), distance: totalDistance);
     journeys.addJourney(journey);
     journeys.saveToStorage();
+
+    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Journey saved')));
   }
 
   Future<bool> checkLocationPermissions() async {
@@ -157,10 +167,12 @@ class _TrackerState extends State<Tracker> {
               target: LatLng(_journey[0].latitude, _journey[0].longitude),
               zoom: 15),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             stopRecording();
           },
+          backgroundColor: Colors.red,
           child: const Icon(Icons.stop),
         ),
       );
