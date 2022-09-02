@@ -16,6 +16,8 @@ class JourneysModel extends ChangeNotifier {
   List<Journey> get journeys => _journeys;
 
   Future<void> getFromDb() async {
+    _journeys = [];
+
     final db = await DatabaseModel.database;
 
     final List<Map<String, dynamic>>? maps = await db?.query('journeys');
@@ -54,5 +56,14 @@ class JourneysModel extends ChangeNotifier {
       await db?.insert('journeys', e.toMap(),
           conflictAlgorithm: ConflictAlgorithm.fail);
     });
+  }
+
+  void deleteAll() async {
+    final db = await DatabaseModel.database;
+
+    await db?.delete('journeys');
+    _journeys = [];
+
+    notifyListeners();
   }
 }
