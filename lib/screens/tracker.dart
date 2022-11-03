@@ -7,8 +7,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_distance/dto/new_journey_dto.dart';
+import 'package:travel_distance/dto/settings_dto.dart';
 import 'package:travel_distance/models/journeys_model.dart';
 import 'package:travel_distance/models/location_model.dart';
+import 'package:travel_distance/models/settings_model.dart';
 
 import '../dto/coordinates_dto.dart';
 
@@ -25,7 +27,7 @@ class _TrackerState extends State<Tracker> {
   final Map<PolylineId, Polyline> _polyLines = {};
   final Completer<GoogleMapController> _controller = Completer();
   int _polyLineIdCounter = 1;
-  late StreamSubscription _locationStream;
+  StreamSubscription? _locationStream;
   final DateTime start = DateTime.now();
   late DateTime end;
 
@@ -91,7 +93,7 @@ class _TrackerState extends State<Tracker> {
   void dispose() {
     super.dispose();
 
-    _locationStream.cancel();
+    _locationStream?.cancel();
   }
 
   void stopRecording() {
@@ -128,8 +130,23 @@ class _TrackerState extends State<Tracker> {
       previous = locationData;
     }
 
+    SettingsModel settings = Provider.of<SettingsModel>(context, listen: false);
+    double usage;
+
+    switch (settings.settings.efficiencyType) {
+      case EfficiencyType.kilometresPerLitre:
+        usage = (totalDistance / 100) / settings.settings.efficiency;
+        break;
+      case EfficiencyType.litresPer100Kilometres:
+        usage = (totalDistance / 100) / 100 * 14;
+        break;
+      default:
+        usage = 0;
+        break;
+    }
+
     NewJourney journey = NewJourney(
-        coordinates: _journey, start: start, end: end, distance: totalDistance);
+        coordinates: _journey, start: start, end: end, distance: totalDistance, usage: usage);
 
     journeys.addJourney(journey);
     journeys.saveToStorage();

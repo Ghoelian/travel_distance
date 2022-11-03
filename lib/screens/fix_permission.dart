@@ -60,7 +60,7 @@ class FixPermission extends StatelessWidget {
                 default:
                   return ElevatedButton(
                       onPressed: () {
-                        locationModel.checkLocationPermissions();
+                        locationModel.checkAndAskPermissions();
                       },
                       child: const Text('Request permission'));
               }

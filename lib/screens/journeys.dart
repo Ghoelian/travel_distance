@@ -39,7 +39,9 @@ class _JourneysState extends State<Journeys> {
                     },
                     icon: const Icon(Icons.delete_forever))
                 : Container(),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
+            IconButton(onPressed: () {
+              Navigator.of(context).pushNamed('/settings');
+            }, icon: const Icon(Icons.settings))
           ],
         ),
         body: Center(
@@ -56,7 +58,7 @@ class _JourneysState extends State<Journeys> {
                         title: Text(
                             '${journeys.journeys[i].formatter.format(journeys.journeys[i].start)} - ${journeys.journeys[i].end.difference(journeys.journeys[i].start).inMinutes} minutes'),
                         subtitle: Text(
-                            '${NumberFormat.decimalPattern().format(journeys.journeys[i].distance / 1000)}km'),
+                            '${NumberFormat.decimalPattern().format(journeys.journeys[i].distance / 1000)}km - ${NumberFormat.decimalPattern().format(journeys.journeys[i].usage)}L'),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete),
                           onPressed: () {
