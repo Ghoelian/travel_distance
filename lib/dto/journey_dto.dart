@@ -5,15 +5,17 @@ import 'package:intl/intl.dart';
 class Journey {
   final List<Coordinate> coordinates;
   final double distance;
-  final DateTime date;
+  final DateTime start;
+  final DateTime end;
   final DateFormat formatter = DateFormat('d/M/y HH:mm');
 
   Journey(
-      {required this.coordinates, required this.date, required this.distance});
+      {required this.coordinates, required this.start, required this.end, required this.distance});
 
   Map<String, dynamic> toMap() {
     return {
-      'date': date.millisecondsSinceEpoch,
+      'start': start.millisecondsSinceEpoch,
+      'end': end.millisecondsSinceEpoch,
       'coordinates': jsonEncode(coordinates.map((e) => e.toJson()).toList()),
       'distance': distance
     };

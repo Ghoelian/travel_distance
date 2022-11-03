@@ -33,7 +33,8 @@ class JourneysModel extends ChangeNotifier {
 
         var journey = Journey(
             coordinates: coordinatesObject,
-            date: (DateTime.fromMillisecondsSinceEpoch(maps[index]['date'])),
+            start: (DateTime.fromMillisecondsSinceEpoch(maps[index]['start'])),
+            end: (DateTime.fromMillisecondsSinceEpoch(maps[index]['end'])),
             distance: maps[index]['distance']);
 
         return journey;

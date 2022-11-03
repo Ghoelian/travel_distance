@@ -8,6 +8,7 @@ import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_distance/dto/journey_dto.dart';
 import 'package:travel_distance/models/journeys_model.dart';
+import 'package:travel_distance/models/location_model.dart';
 
 class Tracker extends StatefulWidget {
   const Tracker({Key? key}) : super(key: key);
@@ -17,60 +18,70 @@ class Tracker extends StatefulWidget {
 }
 
 class _TrackerState extends State<Tracker> {
-  final List<Coordinate> _journey = [];
-  bool? _serviceEnabled;
-  final Map<PolylineId, Polyline> _polyLines = {};
-  int _polyLineIdCounter = 1;
-  PermissionStatus? _permissionGranted;
   final Location _location = Location();
+  final List<Coordinate> _journey = [];
+  final Map<PolylineId, Polyline> _polyLines = {};
+  final Completer<GoogleMapController> _controller = Completer();
+  int _polyLineIdCounter = 1;
   late StreamSubscription _locationStream;
+  final DateTime start = DateTime.now();
+  late DateTime end;
 
   @override
   void initState() {
     super.initState();
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      checkLocationPermissions().then((hasPermission) async {
-        if (hasPermission) {
-          _location.enableBackgroundMode(enable: true);
+      var locationModel = Provider.of<LocationModel>(context, listen: false);
 
-          LocationData locationData = await _location.getLocation();
+      var hasPermission = locationModel.hasPermissionAndService();
+
+      if (hasPermission) {
+        _location.enableBackgroundMode(enable: true);
+        _location.changeSettings(interval: 500);
+
+        _location.getLocation().then((locationData) => {
+              setState(() {
+                _journey.add(Coordinate(
+                    latitude: locationData.latitude!,
+                    longitude: locationData.longitude!));
+              })
+            });
+
+        _locationStream =
+            _location.onLocationChanged.listen((LocationData location) async {
+          final GoogleMapController controller = await _controller.future;
+
+          controller.animateCamera(CameraUpdate.newCameraPosition(
+              CameraPosition(
+                  target: LatLng(location.latitude!, location.longitude!),
+                  zoom: 18.0)));
+
+          final String polylineIdval = 'polyline_id_$_polyLineIdCounter';
+          _polyLineIdCounter++;
+          final PolylineId polylineId = PolylineId(polylineIdval);
+
+          final Polyline polyline = Polyline(
+              polylineId: polylineId,
+              consumeTapEvents: true,
+              color: Colors.red,
+              width: 5,
+              points: [
+                LatLng(_journey[_journey.length - 1].latitude,
+                    _journey[_journey.length - 1].longitude),
+                LatLng(location.latitude!, location.longitude!)
+              ]);
 
           setState(() {
             _journey.add(Coordinate(
-                latitude: locationData.latitude!,
-                longitude: locationData.longitude!));
+                latitude: location.latitude!, longitude: location.longitude!));
+
+            _polyLines[polylineId] = polyline;
           });
-
-          _locationStream =
-              _location.onLocationChanged.listen((LocationData location) {
-            final String polylineIdval = 'polyline_id_$_polyLineIdCounter';
-            _polyLineIdCounter++;
-            final PolylineId polylineId = PolylineId(polylineIdval);
-
-            final Polyline polyline = Polyline(
-                polylineId: polylineId,
-                consumeTapEvents: true,
-                color: Colors.red,
-                width: 5,
-                points: [
-                  LatLng(_journey[_journey.length - 1].latitude,
-                      _journey[_journey.length - 1].longitude),
-                  LatLng(location.latitude!, location.longitude!)
-                ]);
-
-            setState(() {
-              _journey.add(Coordinate(
-                  latitude: location.latitude!,
-                  longitude: location.longitude!));
-
-              _polyLines[polylineId] = polyline;
-            });
-          });
-        } else {
-          Navigator.of(context).pushNamed('/fix-permissions');
-        }
-      });
+        });
+      } else {
+        Navigator.of(context).popAndPushNamed('/fix-permissions');
+      }
     });
   }
 
@@ -85,6 +96,8 @@ class _TrackerState extends State<Tracker> {
     JourneysModel journeys = Provider.of<JourneysModel>(context, listen: false);
     double totalDistance = 0;
     Coordinate? previous;
+
+    end = DateTime.now();
 
     for (var locationData in _journey) {
       if (previous == null) {
@@ -114,7 +127,8 @@ class _TrackerState extends State<Tracker> {
     }
 
     Journey journey = Journey(
-        coordinates: _journey, date: DateTime.now(), distance: totalDistance);
+        coordinates: _journey, start: start, end: end, distance: totalDistance);
+
     journeys.addJourney(journey);
     journeys.saveToStorage();
 
@@ -124,48 +138,26 @@ class _TrackerState extends State<Tracker> {
         .showSnackBar(const SnackBar(content: Text('Journey saved')));
   }
 
-  Future<bool> checkLocationPermissions() async {
-    _serviceEnabled = await _location.serviceEnabled();
-
-    if (!_serviceEnabled!) {
-      _serviceEnabled = await _location.requestService();
-
-      if (!_serviceEnabled!) {
-        return Future.value(false);
-      }
-    }
-
-    _permissionGranted = await _location.hasPermission();
-
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await _location.requestPermission();
-
-      if (_permissionGranted != PermissionStatus.granted) {
-        return Future.value(false);
-      }
-    }
-
-    return Future.value(true);
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_serviceEnabled != null &&
-        _serviceEnabled! &&
-        _permissionGranted == PermissionStatus.granted &&
-        _journey.isNotEmpty) {
+    var locationModel = Provider.of<LocationModel>(context, listen: false);
+
+    if (locationModel.hasPermissionAndService() && _journey.isNotEmpty) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Journey'),
         ),
         body: GoogleMap(
-          mapType: MapType.hybrid,
+          onMapCreated: (GoogleMapController controller) {
+            _controller.complete(controller);
+          },
+          mapType: MapType.normal,
           myLocationEnabled: true,
           compassEnabled: true,
           polylines: Set<Polyline>.of(_polyLines.values),
           initialCameraPosition: CameraPosition(
               target: LatLng(_journey[0].latitude, _journey[0].longitude),
-              zoom: 15),
+              zoom: 18.0),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
         floatingActionButton: FloatingActionButton(

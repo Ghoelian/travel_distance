@@ -44,7 +44,7 @@ class _JourneyDetailsState extends State<JourneyDetails> {
         appBar: AppBar(
           title: const Text('Details'),
         ),
-        body: ListView(
+        body: Column(
           children: [
             ListTile(
               title: Text(
@@ -54,7 +54,7 @@ class _JourneyDetailsState extends State<JourneyDetails> {
               height: 500,
               child: GoogleMap(
                 initialCameraPosition: CameraPosition(
-                    zoom: 15.0,
+                    zoom: 18.0,
                     target: LatLng(args.journey.coordinates[0].latitude,
                         args.journey.coordinates[0].longitude)),
                 polylines: Set<Polyline>.of(_polylines.values),

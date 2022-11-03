@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:travel_distance/models/database_model.dart';
 import 'package:travel_distance/models/journeys_model.dart';
+import 'package:travel_distance/models/location_model.dart';
 import 'package:travel_distance/screens/fix_permission.dart';
 import 'package:travel_distance/screens/journey_details.dart';
 import 'package:travel_distance/screens/journeys.dart';
@@ -24,7 +23,8 @@ class TravelDistance extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => JourneysModel())
+          ChangeNotifierProvider(create: (context) => JourneysModel()),
+          ChangeNotifierProvider(create: (context) => LocationModel())
         ],
         child: MaterialApp(
           title: 'Travel Distance',
@@ -36,6 +36,7 @@ class TravelDistance extends StatelessWidget {
             '/fix-permissions': (context) => const FixPermission()
           },
           theme: ThemeData(
+            useMaterial3: true,
             colorScheme:
                 ColorScheme.fromSeed(seedColor: const Color(0xff792bff))
                     .copyWith(primary: const Color(0xff792bff)),

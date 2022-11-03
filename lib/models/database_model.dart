@@ -10,7 +10,7 @@ class DatabaseModel extends ChangeNotifier {
         openDatabase(join(await getDatabasesPath(), 'journeys_database.db'),
             onCreate: (db, version) {
       return db.execute(
-          'CREATE TABLE journeys(id INTEGER PRIMARY KEY AUTOINCREMENT, date INTEGER, coordinates TEXT, distance REAL)');
+          'CREATE TABLE journeys(id INTEGER PRIMARY KEY AUTOINCREMENT, start INTEGER, end INTEGER, coordinates TEXT, distance REAL)');
     }, version: 1);
   }
 }
