@@ -1,7 +1,7 @@
-import 'package:travel_distance/dto/journey_dto.dart';
+import 'package:travel_distance/dto/db_journey_dto.dart';
 
 class JourneyDetailsArguments {
-  final Journey journey;
+  final DbJourney journey;
 
   JourneyDetailsArguments(this.journey);
 }

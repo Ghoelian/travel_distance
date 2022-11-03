@@ -13,7 +13,7 @@ class LocationModel extends ChangeNotifier {
     return ((_serviceEnabled ?? false) && (_permissionGranted == PermissionStatus.granted));
   }
 
-  Future<bool> checkLocationPermissions() async {
+  Future<bool> checkAndAskPermissions() async  {
     _serviceEnabled = await _location.serviceEnabled();
 
     if (!_serviceEnabled!) {
@@ -38,5 +38,13 @@ class LocationModel extends ChangeNotifier {
 
     notifyListeners();
     return Future.value(true);
+  }
+
+  Future<bool> checkLocationPermissions() async {
+    _serviceEnabled = await _location.serviceEnabled();
+    _permissionGranted = await _location.hasPermission();
+
+    notifyListeners();
+    return Future.value(_serviceEnabled! && (_permissionGranted == PermissionStatus.granted));
   }
 }

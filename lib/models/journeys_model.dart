@@ -3,19 +3,22 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:travel_distance/dto/new_journey_dto.dart';
 import 'package:travel_distance/models/database_model.dart';
 
-import '../dto/journey_dto.dart';
+import '../dto/coordinates_dto.dart';
+import '../dto/db_journey_dto.dart';
 
 class JourneysModel extends ChangeNotifier {
-  List<Journey> _journeys = [];
-  List<Journey> _newJourneys = [];
+  List<DbJourney> _journeys = [];
+  final List<NewJourney> _newJourneys = [];
 
   final FlutterSecureStorage storage = const FlutterSecureStorage(
       aOptions: AndroidOptions(encryptedSharedPreferences: true));
 
-  List<Journey> get journeys => _journeys;
-  List<Journey> get newJourneys => _newJourneys;
+  List<DbJourney> get journeys => _journeys;
+
+  List<NewJourney> get newJourneys => _newJourneys;
 
   Future<void> getFromDb() async {
     _journeys = [];
@@ -33,7 +36,8 @@ class JourneysModel extends ChangeNotifier {
           coordinatesObject.add(Coordinate.fromJson(element));
         }
 
-        var journey = Journey(
+        var journey = DbJourney(
+            id: maps[index]['id'],
             coordinates: coordinatesObject,
             start: (DateTime.fromMillisecondsSinceEpoch(maps[index]['start'])),
             end: (DateTime.fromMillisecondsSinceEpoch(maps[index]['end'])),
@@ -46,7 +50,7 @@ class JourneysModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addJourney(Journey journey) {
+  void addJourney(NewJourney journey) {
     _newJourneys.add(journey);
 
     notifyListeners();
@@ -55,17 +59,27 @@ class JourneysModel extends ChangeNotifier {
   Future<void> saveToStorage() async {
     final db = await DatabaseModel.database;
 
-    _newJourneys.forEach((e) async {
+    for (var e in _newJourneys) {
       await db?.insert('journeys', e.toMap(),
           conflictAlgorithm: ConflictAlgorithm.fail);
-    });
+    }
   }
 
-  void deleteAll() async {
+  Future<void> deleteAll() async {
     final db = await DatabaseModel.database;
 
     await db?.delete('journeys');
     _journeys = [];
+
+    notifyListeners();
+  }
+
+  Future<void> deleteOne(DbJourney journey) async {
+    final db = await DatabaseModel.database;
+
+    await db?.delete('journeys', where: 'id = ?', whereArgs: [journey.id]);
+
+    getFromDb();
 
     notifyListeners();
   }

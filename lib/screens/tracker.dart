@@ -6,9 +6,11 @@ import 'package:flutter/scheduler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
-import 'package:travel_distance/dto/journey_dto.dart';
+import 'package:travel_distance/dto/new_journey_dto.dart';
 import 'package:travel_distance/models/journeys_model.dart';
 import 'package:travel_distance/models/location_model.dart';
+
+import '../dto/coordinates_dto.dart';
 
 class Tracker extends StatefulWidget {
   const Tracker({Key? key}) : super(key: key);
@@ -126,7 +128,7 @@ class _TrackerState extends State<Tracker> {
       previous = locationData;
     }
 
-    Journey journey = Journey(
+    NewJourney journey = NewJourney(
         coordinates: _journey, start: start, end: end, distance: totalDistance);
 
     journeys.addJourney(journey);

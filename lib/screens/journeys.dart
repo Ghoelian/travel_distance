@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:travel_distance/models/location_model.dart';
 
 import '../arguments/journey_details.dart';
 import '../models/journeys_model.dart';
@@ -19,6 +20,9 @@ class _JourneysState extends State<Journeys> {
 
     JourneysModel journeys = Provider.of<JourneysModel>(context, listen: false);
     journeys.getFromDb();
+
+    LocationModel locationModel = Provider.of<LocationModel>(context, listen: false);
+    locationModel.checkLocationPermissions();
   }
 
   @override
@@ -55,7 +59,9 @@ class _JourneysState extends State<Journeys> {
                             '${NumberFormat.decimalPattern().format(journeys.journeys[i].distance / 1000)}km'),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete),
-                          onPressed: () {},
+                          onPressed: () {
+                            journeys.deleteOne(journeys.journeys[i]);
+                          },
                         ),
                       );
                     })
