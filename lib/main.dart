@@ -10,7 +10,7 @@ import 'package:travel_distance/screens/tracker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  DatabaseModel.init();
+  await DatabaseModel.init();
 
   runApp(const TravelDistance());
 }

@@ -133,9 +133,6 @@ class _TrackerState extends State<Tracker> {
     journeys.saveToStorage();
 
     Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Journey saved')));
   }
 
   @override

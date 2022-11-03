@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 class DatabaseModel extends ChangeNotifier {
   static Future<Database>? database;
 
-  static void init() async {
+  static Future<void> init() async {
     database =
         openDatabase(join(await getDatabasesPath(), 'journeys_database.db'),
             onCreate: (db, version) {
