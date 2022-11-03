@@ -9,11 +9,13 @@ import '../dto/journey_dto.dart';
 
 class JourneysModel extends ChangeNotifier {
   List<Journey> _journeys = [];
+  List<Journey> _newJourneys = [];
 
   final FlutterSecureStorage storage = const FlutterSecureStorage(
       aOptions: AndroidOptions(encryptedSharedPreferences: true));
 
   List<Journey> get journeys => _journeys;
+  List<Journey> get newJourneys => _newJourneys;
 
   Future<void> getFromDb() async {
     _journeys = [];
@@ -45,7 +47,7 @@ class JourneysModel extends ChangeNotifier {
   }
 
   void addJourney(Journey journey) {
-    _journeys.add(journey);
+    _newJourneys.add(journey);
 
     notifyListeners();
   }
@@ -53,7 +55,7 @@ class JourneysModel extends ChangeNotifier {
   Future<void> saveToStorage() async {
     final db = await DatabaseModel.database;
 
-    journeys.forEach((e) async {
+    _newJourneys.forEach((e) async {
       await db?.insert('journeys', e.toMap(),
           conflictAlgorithm: ConflictAlgorithm.fail);
     });

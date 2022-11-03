@@ -66,7 +66,7 @@ class _JourneysState extends State<Journeys> {
                   )),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.of(context).pushNamed('/tracker');
+            Navigator.of(context).pushReplacementNamed('/tracker');
           },
           tooltip: 'Start recording journey',
           child: const Icon(Icons.navigation),
