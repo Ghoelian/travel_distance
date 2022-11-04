@@ -93,6 +93,8 @@ class _TrackerState extends State<Tracker> {
   void dispose() {
     super.dispose();
 
+    print('Disposing');
+
     _locationStream?.cancel();
   }
 
@@ -146,44 +148,70 @@ class _TrackerState extends State<Tracker> {
     }
 
     NewJourney journey = NewJourney(
-        coordinates: _journey, start: start, end: end, distance: totalDistance, usage: usage);
+        coordinates: _journey,
+        start: start,
+        end: end,
+        distance: totalDistance,
+        usage: usage);
 
     journeys.addJourney(journey);
     journeys.saveToStorage();
-
-    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
   }
 
   @override
   Widget build(BuildContext context) {
     var locationModel = Provider.of<LocationModel>(context, listen: false);
 
+    Future<bool> showExitPopup() async {
+      return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                content: const Text('Save and stop recording?'),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('No')),
+                  TextButton(
+                      onPressed: () {
+                        stopRecording();
+                        Navigator.of(context).pop(true);
+                      },
+                      child: const Text('Yes'))
+                ],
+              ));
+    }
+
     if (locationModel.hasPermissionAndService() && _journey.isNotEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Journey'),
-        ),
-        body: GoogleMap(
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-          },
-          mapType: MapType.normal,
-          myLocationEnabled: true,
-          compassEnabled: true,
-          polylines: Set<Polyline>.of(_polyLines.values),
-          initialCameraPosition: CameraPosition(
-              target: LatLng(_journey[0].latitude, _journey[0].longitude),
-              zoom: 18.0),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            stopRecording();
-          },
-          backgroundColor: Colors.red,
-          child: const Icon(Icons.stop),
-        ),
-      );
+      return WillPopScope(
+          onWillPop: showExitPopup,
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text('Journey'),
+            ),
+            body: GoogleMap(
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              mapType: MapType.normal,
+              myLocationEnabled: true,
+              compassEnabled: true,
+              polylines: Set<Polyline>.of(_polyLines.values),
+              initialCameraPosition: CameraPosition(
+                  target: LatLng(_journey[0].latitude, _journey[0].longitude),
+                  zoom: 18.0),
+            ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.startFloat,
+            floatingActionButton: FloatingActionButton(
+              tooltip: 'Stop recording',
+              onPressed: () {
+                showExitPopup()
+                    .then((value) => {if (value) Navigator.of(context).pop()});
+              },
+              backgroundColor: Colors.red,
+              child: const Icon(Icons.stop),
+            ),
+          ));
     } else {
       return Scaffold(
           appBar: AppBar(

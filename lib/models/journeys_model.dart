@@ -13,7 +13,6 @@ class JourneysModel extends ChangeNotifier {
   final List<NewJourney> _newJourneys = [];
 
   List<DbJourney> get journeys => _journeys;
-
   List<NewJourney> get newJourneys => _newJourneys;
 
   Future<void> getFromDb() async {
@@ -22,7 +21,6 @@ class JourneysModel extends ChangeNotifier {
     final db = DatabaseModel.database;
 
     final List<Map<String, dynamic>>? maps = await db?.query('journeys');
-    print(maps![0]['usage']);
 
     if (maps != null && maps.isNotEmpty) {
       _journeys = List.generate(maps.length, (index) {
@@ -61,6 +59,9 @@ class JourneysModel extends ChangeNotifier {
       await db?.insert('journeys', e.toMap(),
           conflictAlgorithm: ConflictAlgorithm.fail);
     }
+
+    _newJourneys.removeWhere((element) => true);
+    getFromDb();
   }
 
   Future<void> deleteAll() async {
@@ -77,8 +78,7 @@ class JourneysModel extends ChangeNotifier {
 
     await db?.delete('journeys', where: 'id = ?', whereArgs: [journey.id]);
 
+    // getFromDb() already calls notifyListeners
     getFromDb();
-
-    notifyListeners();
   }
 }
