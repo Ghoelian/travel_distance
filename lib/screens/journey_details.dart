@@ -50,8 +50,13 @@ class _JourneyDetailsState extends State<JourneyDetails> {
               title: Text(
                   'Total distance: ${NumberFormat.decimalPattern().format(args.journey.distance / 1000)}km'),
             ),
-            SizedBox(
-              height: 500,
+            ListTile(
+              title: Text('Total petrol used: ${NumberFormat.decimalPattern().format(args.journey.usage)}L')
+            ),
+            ListTile(
+              title: Text('Total time: ${args.journey.end.difference(args.journey.start).inMinutes} minutes'),
+            ),
+            Expanded(
               child: GoogleMap(
                 initialCameraPosition: CameraPosition(
                     zoom: 18.0,
