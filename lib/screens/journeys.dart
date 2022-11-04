@@ -21,7 +21,8 @@ class _JourneysState extends State<Journeys> {
     JourneysModel journeys = Provider.of<JourneysModel>(context, listen: false);
     journeys.getFromDb();
 
-    LocationModel locationModel = Provider.of<LocationModel>(context, listen: false);
+    LocationModel locationModel =
+        Provider.of<LocationModel>(context, listen: false);
     locationModel.checkLocationPermissions();
   }
 
@@ -34,14 +35,17 @@ class _JourneysState extends State<Journeys> {
           actions: [
             journeys.journeys.isNotEmpty
                 ? IconButton(
+                    tooltip: 'Delete all journeys',
                     onPressed: () {
                       journeys.deleteAll();
                     },
                     icon: const Icon(Icons.delete_forever))
                 : Container(),
-            IconButton(onPressed: () {
-              Navigator.of(context).pushNamed('/settings');
-            }, icon: const Icon(Icons.settings))
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/settings');
+                },
+                icon: const Icon(Icons.settings))
           ],
         ),
         body: Center(
@@ -60,6 +64,7 @@ class _JourneysState extends State<Journeys> {
                         subtitle: Text(
                             '${NumberFormat.decimalPattern().format(journeys.journeys[i].distance / 1000)}km - ${NumberFormat.decimalPattern().format(journeys.journeys[i].usage)}L'),
                         trailing: IconButton(
+                          tooltip: 'Delete journey',
                           icon: const Icon(Icons.delete),
                           onPressed: () {
                             journeys.deleteOne(journeys.journeys[i]);
@@ -74,7 +79,7 @@ class _JourneysState extends State<Journeys> {
                   )),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.of(context).pushReplacementNamed('/tracker');
+            Navigator.of(context).pushNamed('/tracker');
           },
           tooltip: 'Start recording journey',
           child: const Icon(Icons.navigation),
