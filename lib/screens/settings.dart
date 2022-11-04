@@ -24,20 +24,21 @@ class _SettingsState extends State<Settings> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Efficiency'),
-              content: Row(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                      child: TextField(
-                        controller: controller,
-                        keyboardType: TextInputType.number,
-                        autofocus: true,
-                        onSubmitted: (value) {
-                          settings.changeEfficiency(
-                              double.tryParse(controller.text) ?? 0,
-                              efficiencyType ?? EfficiencyType.kilometresPerLitre);
-                          Navigator.of(context).pop();
-                        },
-                      )),
+                  const Text('Changing this setting will only affect future journeys.'),
+                  TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    autofocus: true,
+                    onSubmitted: (value) {
+                      settings.changeEfficiency(
+                          double.tryParse(controller.text) ?? 0,
+                          efficiencyType ?? EfficiencyType.kilometresPerLitre);
+                      Navigator.of(context).pop();
+                    },
+                  )
                   // Expanded(
                   //     child: DropdownButton(
                   //       value: efficiencyType,
