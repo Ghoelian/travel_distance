@@ -142,10 +142,10 @@ class _TrackerState extends State<Tracker> {
 
     switch (settings.settings.efficiencyType) {
       case EfficiencyType.kilometresPerLitre:
-        usage = (totalDistance / 100) / settings.settings.efficiency;
+        usage = (totalDistance / 1000) / settings.settings.efficiency;
         break;
       case EfficiencyType.litresPer100Kilometres:
-        usage = (totalDistance / 100) / 100 * 14;
+        usage = (totalDistance / 1000) / 100 * 14;
         break;
       default:
         usage = 0;
