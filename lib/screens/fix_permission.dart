@@ -19,7 +19,7 @@ class FixPermission extends StatelessWidget {
               padding: EdgeInsets.all(8.0),
               child: Text(
                   textAlign: TextAlign.center,
-                  'This app requires the location permission in order to track your journeys.'),
+                  'This app collects location data to enable journey tracking even when the app is closed or not in use.'),
             ),
             Builder(builder: (context) {
               switch (locationModel.permissionGranted) {
