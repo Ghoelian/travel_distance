@@ -28,8 +28,9 @@ class _TrackerState extends State<Tracker> {
   final Completer<GoogleMapController> _controller = Completer();
   int _polyLineIdCounter = 1;
   StreamSubscription? _locationStream;
-  final DateTime start = DateTime.now();
-  late DateTime end;
+  final DateTime _start = DateTime.now();
+  late DateTime _end;
+  bool _started = false;
 
   @override
   void initState() {
@@ -42,18 +43,22 @@ class _TrackerState extends State<Tracker> {
 
       if (hasPermission) {
         _location.enableBackgroundMode(enable: true);
-        _location.changeSettings(interval: 500);
+        _location.changeSettings(interval: 2000);
 
-        _location.getLocation().then((locationData) => {
-              setState(() {
-                _journey.add(Coordinate(
-                    latitude: locationData.latitude!,
-                    longitude: locationData.longitude!));
-              })
-            });
+        _location.getLocation();
 
         _locationStream =
             _location.onLocationChanged.listen((LocationData location) async {
+          if (!_started) {
+            setState(() {
+              _journey.add(Coordinate(
+                  latitude: location.latitude!,
+                  longitude: location.longitude!));
+            });
+
+            _started = true;
+          }
+
           final GoogleMapController controller = await _controller.future;
 
           controller.animateCamera(CameraUpdate.newCameraPosition(
@@ -103,7 +108,7 @@ class _TrackerState extends State<Tracker> {
     double totalDistance = 0;
     Coordinate? previous;
 
-    end = DateTime.now();
+    _end = DateTime.now();
 
     for (var locationData in _journey) {
       if (previous == null) {
@@ -149,8 +154,8 @@ class _TrackerState extends State<Tracker> {
 
     NewJourney journey = NewJourney(
         coordinates: _journey,
-        start: start,
-        end: end,
+        start: _start,
+        end: _end,
         distance: totalDistance,
         usage: usage);
 
@@ -181,7 +186,9 @@ class _TrackerState extends State<Tracker> {
               ));
     }
 
-    if (locationModel.hasPermissionAndService() && _journey.isNotEmpty) {
+    if (locationModel.hasPermissionAndService() &&
+        _started &&
+        _journey.isNotEmpty) {
       return WillPopScope(
           onWillPop: showExitPopup,
           child: Scaffold(
