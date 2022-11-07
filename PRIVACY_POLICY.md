@@ -8,7 +8,7 @@ I hereby state, to the best of my knowledge and belief, that I have not programm
 
 The list of permissions required by the app can be found in the `AndroidManifest.xml` file:
 
-https://github.com/Ghoelian/travel_distance/blob/master/android/app/src/main/AndroidManifest.xml#L3-L4
+https://github.com/Ghoelian/travel_distance/blob/d5f77f5b5ef806a9ea35c5afe77281c523b5ee50/android/app/src/main/AndroidManifest.xml#L3-L4
 
 <br/>
 
