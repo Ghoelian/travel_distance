@@ -14,7 +14,7 @@ https://github.com/Ghoelian/travel_distance/blob/d5f77f5b5ef806a9ea35c5afe77281c
 
 |                   Permission                    | Why it is required                                                                                                                                                                               |
 |:-----------------------------------------------:|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `android.permission.ACCESS_BACKGROUND_LOCATION` | Enables the app to access your location while the app is in the background through the foreground service. You can revoke this permission at any time, but the app will not function without it. |
+| `android.permission.ACCESS_BACKGROUND_LOCATION` | Enables the app to access your location data while the app is in the background through the foreground service. You can revoke this permission at any time, but the app will not function without it. |
 |     `android.permission.FOREGROUND_SERVICE`     | Enables the app to create foreground services that will send location updates to the app. Permission automatically granted by the system; can't be revoked by user.                              |
 
 <hr style="border:1px solid gray">
