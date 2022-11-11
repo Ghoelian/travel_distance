@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_distance/models/location_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FixPermission extends StatelessWidget {
   const FixPermission({Key? key}) : super(key: key);
@@ -21,6 +22,27 @@ class FixPermission extends StatelessWidget {
                   textAlign: TextAlign.center,
                   'This app collects location data to enable journey tracking even when the app is closed or not in use.'),
             ),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                  textAlign: TextAlign.center,
+                  'See our Privacy Policy for more details.'),
+            ),
+            ElevatedButton(
+                onPressed: () async {
+                  debugPrint('Parsing url');
+                  var url = Uri.parse(
+                      'https://github.com/Ghoelian/travel_distance/blob/master/PRIVACY_POLICY.md');
+
+                  debugPrint('Checking if can launch');
+                  if (await canLaunchUrl(url)) {
+                    debugPrint('Can launch');
+                    await launchUrl(url);
+                  } else {
+                    debugPrint('Couldn\'t open url');
+                  }
+                },
+                child: const Text('Privacy policy')),
             Builder(builder: (context) {
               switch (locationModel.permissionGranted) {
                 case PermissionStatus.deniedForever:
@@ -53,7 +75,8 @@ class FixPermission extends StatelessWidget {
                       ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).popAndPushNamed('/tracker');
-                          }, child: const Text('Return to journey'))
+                          },
+                          child: const Text('Return to journey'))
                     ],
                   );
                 case PermissionStatus.denied:
